@@ -1,0 +1,22 @@
+## get gff3 file
+## sort gff3 file for the downstream use
+sort refseq.mm10.gff3.txt > ref.mm10.gff3
+
+### I only chose “gene” this time
+cat ensembl.mm10.gff3.txt | awk 'BEGIN {OFS = "\t"}; {if($3 =="gene") print $1,$4-1,$5,$9}' > mygenes.bed 
+
+### or include everything and append information columns to output.bed files
+### $9 : gene information
+### $3 : annotation information
+cat ref.mm10.gff3 |awk 'BEGIN {OFS = "\t"};{print  $1,$4-1,$5,$9,$3}' > mygenes.bed 
+
+
+##### bedtools intersect -wo : write the original A and B entries plus the number of base pairs of overlap between the two features
+### mygenes.bed : gff3 conversion to bed
+### macs2 output narrowPeak
+bedtools intersect -wo -a mygenes.bed -b macs2/wt_tem3_peaks.narrowPeak | head
+bedtools intersect -wo -a mygenes.bed -b macs2/wt_tem1_peaks.narrowPeak | awk '{if($5 =="gene") print $0}' | head
+## if you want to save the output
+bedtools intersect -wo -a mygenes.bed -b macs2/wt_tem1_peaks.narrowPeak | awk '{if($5 =="gene") print $0}' > wt_tem1.intersect.bed
+
+

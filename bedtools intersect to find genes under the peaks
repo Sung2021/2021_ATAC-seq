@@ -20,4 +20,5 @@ bedtools intersect -wo -a mygenes.bed -b wt_tem1_coverage.bed | awk '{if($5 =="g
 ## if you want to save the output
 bedtools intersect -wo -a mygenes.bed -b macs2/wt_tem1_peaks.narrowPeak | awk '{if($5 =="gene") print $0}' > wt_tem1.intersect.bed
 
-
+#### bedtools window  : to report all genes within 100bp or upstream of reference
+bedtools window -a mygenes.bed -b wt_tem1_coverage.bed -w 100 | awk '{if($5 =="gene") print $0}' | wc -l

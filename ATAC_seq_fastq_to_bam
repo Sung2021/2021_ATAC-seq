@@ -25,7 +25,7 @@
 input=wt_tem1
 crop=36
 path=~/Desktop/Sung_work/raw_tmp/trimmed
-
+cd ~/Desktop/Sung_work/raw_tmp/
 ### Trimming of fastqs remaining {crop}bp 
 ### Trimmomatic program location : ~/Desktop/software/Trimmomatic-0.39/trimmomatic-0.39.jar
 ### output : trimmed fastqs (R1 and R2)

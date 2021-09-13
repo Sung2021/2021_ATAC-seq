@@ -40,13 +40,17 @@ combined[,'c11'] <- condition11[,5]
 combined[,'c12'] <- condition12[,5]
 combined[,'c13'] <- condition13[,5]
 
-## change the names of the columns for the reconizable ways
+combined[1:3,]
 cov.beds
 colnames(combined)[4:16] <- c('ko_tcm1','ko_tcm2','ko_tcm3',
                               'ko_tem1','ko_tem2',
                               'naive1','naive2',
                               'wt_tcm1','wt_tcm2','wt_tcm3',
                               'wt_tem1','wt_tem2','wt_tem3')
+## condition1,2,3 coverage
+#combined[,'c1_cov'] <- condition1[,8]
+#combined[,'c2_cov'] <- condition2[,8]
+#combined[,'c3_cov'] <- condition3[,8]
 
 ######## choose only the peaks on chr1-chr20 (mouse)
 chrs <- paste0('chr',1:20)
@@ -65,8 +69,6 @@ colnames(tmp.md) <- colnames(combined)[4:16]
 for(i in 1:13){
   tmp.md[,i] <- median(combined[,3+i])
 }
-
-## normalized score of each peak in each condition
 tmp.norm <- data.frame(matrix(nrow = length(rownames(combined)), 
                             ncol = length(colnames(combined))-3))
 colnames(tmp.norm) <- colnames(combined)[4:16]
@@ -75,12 +77,10 @@ tmp.norm <- tmp.norm/tmp.md
 tmp.norm <- tmp.norm[,c(6:7,11:13,8:10,4:5,1:3)]
 combined.norm <- cbind(combined[,1:3], tmp.norm)
 
-## save data to rds and csv format
 saveRDS(combined.norm, '~/Desktop/HMH/rds/2021.09.13.atac_seq.normalized.peaks.rds')
 write.csv(combined.norm, '~/Desktop/HMH/rds/2021.09.13.atac_seq.normalized.peaks.csv')
 
 ### inspect the distribution of the normalized peaks
-### find the outliers 
 rowMeans(combined.norm[,4:16])
 hist(rowMeans(combined.norm[,4:16]), breaks = 100)
 summary(rowMeans(combined.norm[,4:16]))
@@ -92,12 +92,30 @@ combined.norm[rowMeans(combined.norm[,4:16]) > 200,]
 combined.norm <- combined.norm[-25471,] ### 58693 left
 dim(combined.norm)
 
+## need to renormalize again
+combined[25471,]
+combined <- combined[-25471,]
+
+## intermediate matrix for the normalized score
+## median of score of each condition
+tmp.md <- data.frame(matrix(nrow = length(rownames(combined)), 
+                            ncol = length(colnames(combined))-3))
+colnames(tmp.md) <- colnames(combined)[4:16]
+for(i in 1:13){
+  tmp.md[,i] <- median(combined[,3+i])
+}
+tmp.norm <- data.frame(matrix(nrow = length(rownames(combined)), 
+                              ncol = length(colnames(combined))-3))
+colnames(tmp.norm) <- colnames(combined)[4:16]
+tmp.norm <- combined[,4:16]
+tmp.norm <- tmp.norm/tmp.md
+tmp.norm <- tmp.norm[,c(6:7,11:13,8:10,4:5,1:3)]
+combined.norm <- cbind(combined[,1:3], tmp.norm)
+
 colnames(combined.norm)
 ### inspect the distribution of the normalized peaks
 ggplot(combined.norm, aes(naive1,naive2)) + geom_point() + ggpubr::stat_cor(method = 'pearson')
 ggplot(combined.norm, aes(wt_tem1,wt_tcm1)) + geom_point() + ggpubr::stat_cor(method = 'pearson')
 
-
-### save combined peaks to csv 
-write.csv(combined[,c(1:3,13:15,7:9)], '~/Desktop/HMH/rds/2021.09.10.wt_tem_peaks.normalized.csv')
-saveRDS(combined, '~/Desktop/HMH/rds/2021.09.10.wt_tem_peaks.normalized.rds' )
+saveRDS(combined.norm, '~/Desktop/HMH/rds/2021.09.13.atac_seq.normalized.peaks.rds')
+write.csv(combined.norm, '~/Desktop/HMH/rds/2021.09.13.atac_seq.normalized.peaks.csv')

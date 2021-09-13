@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+#input=naive
+path=~/Desktop/Sung_work/sam
+
+#for input in wt_tcm1 wt_tcm2 wt_tcm3 ko_tem1 ko_tem2 ko_tcm1 ko_tcm2 ko_tcm3; do macs2 callpeak -t $path/${input}${j}.36.q30.sorted2.rmd.bam -f BAMPE -g mm -n ${input} -B -q 0.05 --SPMR --outdir $path/macs2; done
+
+#for input in naive1 naive2 wt_tem1 wt_tem2 wt_tem3 wt_tcm1 wt_tcm2 wt_tcm3 ko_tem1 ko_tem2 ko_tcm1 ko_tcm2 ko_tcm3 ; do echo ${input}; awk '{if($8 > 1.30) print $0}' $path/macs2/${input}_peaks.narrowPeak | wc -l ; done
+
+
+##### generate merged.bed as the input for bedtools coverage
+#cd $path/macs2/
+#cat *Peak | sort -k1,1 -k2,2n | bedtools merge -i stdin | awk 'BEGIN{OFS="\t"} $0=$0"\t"NR' > all.merged.bed
+
+
+##### generate each paired end bed files from bam files 
+#mkdir $path/bed
+#for input in naive1 naive2 wt_tem1 wt_tem2 wt_tem3 wt_tcm1 wt_tcm2 wt_tcm3 ko_tem1 ko_tem2 ko_tcm1 ko_tcm2 ko_tcm3; do bedtools bamtobed -i $path/${input}.36.q30.sorted2.rmd.bam > $path/bed/${input}${k}.pe.bed; done
+
+
+##### bedtools coverage: how much of the genome does my data cover?
+##### generate each coverage bed files comparing merged.bed and each PE bed files
+for input in naive1 naive2 wt_tem1 wt_tem2 wt_tem3 wt_tcm1 wt_tcm2 wt_tcm3 ko_tem1 ko_tem2 ko_tcm1 ko_tcm2 ko_tcm3; do bedtools coverage -a $path/macs2/all.merged.bed -b $path/bed/${input}.pe.bed > $path/bed/${input}_coverage.bed; done

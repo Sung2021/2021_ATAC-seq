@@ -1,24 +1,52 @@
 library(ggplot2)
 
 setwd('~/Desktop/Sung_work/sam/')
-cov.beds <- list.files(path = '~/Desktop/Sung_work/sam', 
+cov.beds <- list.files(path = '~/Desktop/Sung_work/sam/bed', 
                        pattern = 'coverage.bed$', full.names = T)
+## total 13 samples
 condition1 <- read.table(cov.beds[[1]])
 condition2 <- read.table(cov.beds[[2]])
 condition3 <- read.table(cov.beds[[3]])
+condition4 <- read.table(cov.beds[[4]])
+condition5 <- read.table(cov.beds[[5]])
+condition6 <- read.table(cov.beds[[6]])
+condition7 <- read.table(cov.beds[[7]])
+condition8 <- read.table(cov.beds[[8]])
+condition9 <- read.table(cov.beds[[9]])
+condition10 <- read.table(cov.beds[[10]])
+condition11 <- read.table(cov.beds[[11]])
+condition12 <- read.table(cov.beds[[12]])
+condition13 <- read.table(cov.beds[[13]])
+
 
 ### generate the combined peak matrix
 ### merged peak information chr, start, end
 combined <- condition1[,c(1:3)]
 colnames(combined) <- c('chr','start','end')
+
+cov.beds[[1]]
 ## condition1,2,3 score
 combined[,'c1'] <- condition1[,5]
 combined[,'c2'] <- condition2[,5]
 combined[,'c3'] <- condition3[,5]
-## condition1,2,3 coverage
-combined[,'c1_cov'] <- condition1[,8]
-combined[,'c2_cov'] <- condition2[,8]
-combined[,'c3_cov'] <- condition3[,8]
+combined[,'c4'] <- condition4[,5]
+combined[,'c5'] <- condition5[,5]
+combined[,'c6'] <- condition6[,5]
+combined[,'c7'] <- condition7[,5]
+combined[,'c8'] <- condition8[,5]
+combined[,'c9'] <- condition9[,5]
+combined[,'c10'] <- condition10[,5]
+combined[,'c11'] <- condition11[,5]
+combined[,'c12'] <- condition12[,5]
+combined[,'c13'] <- condition13[,5]
+
+## change the names of the columns for the reconizable ways
+cov.beds
+colnames(combined)[4:16] <- c('ko_tcm1','ko_tcm2','ko_tcm3',
+                              'ko_tem1','ko_tem2',
+                              'naive1','naive2',
+                              'wt_tcm1','wt_tcm2','wt_tcm3',
+                              'wt_tem1','wt_tem2','wt_tem3')
 
 ######## choose only the peaks on chr1-chr20 (mouse)
 chrs <- paste0('chr',1:20)
@@ -29,33 +57,46 @@ combined[grep('M', combined$chr),]
 combined[grep('X', combined$chr),]
 combined[grep('Y', combined$chr),]
 
-## median of score of each condition
-combined$c1_md <- median(combined$c1)
-combined$c2_md <- median(combined$c2)
-combined$c3_md <- median(combined$c3)
-
 ## intermediate matrix for the normalized score
-tmp.df <- combined[,c(4:6, 10:12)]
-tmp.df[,c(7:9)] <- 'NA'
-colnames(tmp.df)[7:9] <- c(paste0('normalized_','c',1:3))
-tmp.df[,7] <- tmp.df$c1/tmp.df$c1_md ## each raw score divided by median of whole raw score
-tmp.df[,8] <- tmp.df$c2/tmp.df$c2_md ## each raw score divided by median of whole raw score
-tmp.df[,9] <- tmp.df$c3/tmp.df$c3_md ## each raw score divided by median of whole raw score
-## add normalized file to combined file
-combined <- cbind(combined, tmp.df[,c(7:9)])
+## median of score of each condition
+tmp.md <- data.frame(matrix(nrow = length(rownames(combined)), 
+                            ncol = length(colnames(combined))-3))
+colnames(tmp.md) <- colnames(combined)[4:16]
+for(i in 1:13){
+  tmp.md[,i] <- median(combined[,3+i])
+}
 
-##### remove one expression outlier chr17 34000246 34002280 : which 16825
-rownames(combined[combined$normalized_c1 > 100,])
-combined <- combined[-16825,] ### 38851 peaks left
+## normalized score of each peak in each condition
+tmp.norm <- data.frame(matrix(nrow = length(rownames(combined)), 
+                            ncol = length(colnames(combined))-3))
+colnames(tmp.norm) <- colnames(combined)[4:16]
+tmp.norm <- combined[,4:16]
+tmp.norm <- tmp.norm/tmp.md
+tmp.norm <- tmp.norm[,c(6:7,11:13,8:10,4:5,1:3)]
+combined.norm <- cbind(combined[,1:3], tmp.norm)
+
+## save data to rds and csv format
+saveRDS(combined.norm, '~/Desktop/HMH/rds/2021.09.13.atac_seq.normalized.peaks.rds')
+write.csv(combined.norm, '~/Desktop/HMH/rds/2021.09.13.atac_seq.normalized.peaks.csv')
 
 ### inspect the distribution of the normalized peaks
-ggplot(combined, aes(normalized_c1, normalized_c2)) + geom_point()
-ggplot(combined, aes(normalized_c1, normalized_c3)) + geom_point()
-ggplot(combined, aes(normalized_c2, normalized_c3)) + geom_point()
+### find the outliers 
+rowMeans(combined.norm[,4:16])
+hist(rowMeans(combined.norm[,4:16]), breaks = 100)
+summary(rowMeans(combined.norm[,4:16]))
+boxplot(rowMeans(combined.norm[,4:16]))
+combined.norm[rowMeans(combined.norm[,4:16]) > 200,]
 
-hist(combined$normalized_c1, breaks = 100)
-hist(combined$normalized_c2, breaks = 100)
-hist(combined$normalized_c3, breaks = 100)
+##### remove one expression outlier chr17 34000246 34002280 : which 16825
+##### remove one expression outlier 25471 chr17 34000185 34002280
+combined.norm <- combined.norm[-25471,] ### 58693 left
+dim(combined.norm)
+
+colnames(combined.norm)
+### inspect the distribution of the normalized peaks
+ggplot(combined.norm, aes(naive1,naive2)) + geom_point() + ggpubr::stat_cor(method = 'pearson')
+ggplot(combined.norm, aes(wt_tem1,wt_tcm1)) + geom_point() + ggpubr::stat_cor(method = 'pearson')
+
 
 ### save combined peaks to csv 
 write.csv(combined[,c(1:3,13:15,7:9)], '~/Desktop/HMH/rds/2021.09.10.wt_tem_peaks.normalized.csv')

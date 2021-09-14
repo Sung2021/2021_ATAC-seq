@@ -1,5 +1,26 @@
 #!/bin/bash
 
+path=~/Desktop/Sung_work/sam
+cd ~/Desktop/Sung_work/sam
+
+### merge bams from one condition (combining replicates in one condition)
+for input in naive ko_tem ; do samtools merge $path/${input}.bam $path/${input}1.36.q30.sorted2.rmd.bam $path/${input}2.36.q30.sorted2.rmd.bam ; done
+
+for input in wt_tem wt_tcm ko_tcm ; do samtools merge $path/${input}.bam $path/${input}1.36.q30.sorted2.rmd.bam $path/${input}2.36.q30.sorted2.rmd.bam $path/${input}3.36.q30.sorted2.rmd.bam ; done
+
+### macs2 callpeak with cutoff-analysis output
+for input in naive wt_tem wt_tcm ko_tem ko_tcm; do macs2 callpeak --cutoff-analysis -t $path/${input}.bam -f BAMPE -g mm -n ${input} \
+-B -q 0.05 --SPMR --outdir $path/macs2; done
+
+
+
+
+#########################################################################
+#########################################################################
+####### codes before 2021.09.13
+
+#!/bin/bash
+
 
 input=wt_tem
 path=~/Desktop/Sung_work/sam

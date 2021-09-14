@@ -4,9 +4,11 @@
 #input=naive
 path=~/Desktop/Sung_work/sam
 
-#for input in wt_tcm1 wt_tcm2 wt_tcm3 ko_tem1 ko_tem2 ko_tcm1 ko_tcm2 ko_tcm3; do macs2 callpeak -t $path/${input}${j}.36.q30.sorted2.rmd.bam -f BAMPE -g mm -n ${input} -B -q 0.05 --SPMR --outdir $path/macs2; done
+for input in wt_tcm1 wt_tcm2 wt_tcm3 ko_tem1 ko_tem2 ko_tcm1 ko_tcm2 ko_tcm3; \
+do macs2 callpeak -t $path/${input}${j}.36.q30.sorted2.rmd.bam -f BAMPE -g mm -n ${input} -B -q 0.05 --SPMR --outdir $path/macs2; done
 
-#for input in naive1 naive2 wt_tem1 wt_tem2 wt_tem3 wt_tcm1 wt_tcm2 wt_tcm3 ko_tem1 ko_tem2 ko_tcm1 ko_tcm2 ko_tcm3 ; do echo ${input}; awk '{if($8 > 1.30) print $0}' $path/macs2/${input}_peaks.narrowPeak | wc -l ; done
+for input in naive1 naive2 wt_tem1 wt_tem2 wt_tem3 wt_tcm1 wt_tcm2 wt_tcm3 ko_tem1 ko_tem2 ko_tcm1 ko_tcm2 ko_tcm3 ; \
+do echo ${input}; awk '{if($8 > 1.30) print $0}' $path/macs2/${input}_peaks.narrowPeak | wc -l ; done
 
 
 ##### generate merged.bed as the input for bedtools coverage

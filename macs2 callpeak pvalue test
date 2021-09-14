@@ -1,0 +1,47 @@
+###################### analysis of p value cut off #####################
+
+############ input files are the outputs of macs2 callpeak with --cutoff_analysis option ##########
+setwd('~/Desktop/Sung_work/sam/macs2/')
+##### read files #######
+naive <- read.table('naive_cutoff_analysis.txt', header = T)
+wt_tem <- read.table('wt_tem_cutoff_analysis.txt', header = T)
+wt_tcm <- read.table('wt_tcm_cutoff_analysis.txt', header = T)
+ko_tem <- read.table('ko_tem_cutoff_analysis.txt', header = T)
+ko_tcm <- read.table('ko_tcm_cutoff_analysis.txt', header = T)
+
+rownames(naive) <- paste0('naive_', rownames(naive))
+rownames(wt_tem) <- paste0('wt_tem_', rownames(wt_tem))
+rownames(wt_tcm) <- paste0('wt_tcm_', rownames(wt_tcm))
+rownames(ko_tem) <- paste0('ko_tem_', rownames(ko_tem))
+rownames(ko_tcm) <- paste0('ko_tcm_', rownames(ko_tcm))
+##### intermediate matrix for the visualization 
+tmp <- rbind(naive, wt_tem, wt_tcm,
+             ko_tem,ko_tcm)
+
+##### add sample information for the visualization ##### 
+tmp$sample <- 'NA'
+tmp[,'sample'] <- substr(rownames(tmp),1,6)
+tmp$sample <- factor(tmp$sample, levels = c('naive_',
+                                            'wt_tem','wt_tcm',
+                                            'ko_tem','ko_tcm'))
+##### x axis would be factor formats of pscore
+##### -log10(pval)
+##### 0.05 : 1.30103
+##### 0.01 : 2
+##### 0.001 : 3
+##### 0.0001 : 4
+##### 0.00001 : 5
+p1 <- ggplot(tmp, aes(factor(pscore), npeaks, color=sample)) + geom_line(aes(group=sample)) +
+  theme(axis.text.x= element_text(angle=45)) + ggtitle('raw number of peaks on y axis') + geom_vline(xintercept = 6)
+p2 <- ggplot(tmp, aes(factor(pscore), npeaks, color=sample)) + geom_line(aes(group=sample)) +
+  theme(axis.text.x= element_text(angle=45)) + scale_y_log10() + ggtitle('log10 scaled number of peaks on y axis') +
+  geom_vline(xintercept = 12)
+cowplot::plot_grid(p1,p2, ncol = 1)
+
+tmp[tmp$pscore %in% c(3.6),]
+tmp[tmp$npeaks <= 40000,]
+
+
+ggplot(tmp, aes(factor(pscore), npeaks, color=sample)) + geom_line(aes(group=sample)) +
+  theme(axis.text.x= element_text(angle=45, size=5)) +facet_wrap(.~sample, ncol = 1) +
+  geom_hline(yintercept = c(30000,40000,50000)) + scale_y_log10() + geom_vline(xintercept = c(6,12,20), color='red')

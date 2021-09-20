@@ -1,0 +1,27 @@
+#!/bin/bash
+
+##path : location that contains all bam files
+path=~/Desktop/Sung_work/sam
+
+### merge all bams
+### output: all.merged.bam
+#samtools merge -@ 10 -f -o $path/all.merged.bam \
+naive1.36.q30.sorted2.rmd.bam \
+naive2.36.q30.sorted2.rmd.bam \
+wt_tem1.36.q30.sorted2.rmd.bam \
+wt_tem2.36.q30.sorted2.rmd.bam \
+wt_tem3.36.q30.sorted2.rmd.bam \
+wt_tcm1.36.q30.sorted2.rmd.bam \
+wt_tcm2.36.q30.sorted2.rmd.bam \
+wt_tcm3.36.q30.sorted2.rmd.bam \
+ko_tem1.36.q30.sorted2.rmd.bam \
+ko_tem2.36.q30.sorted2.rmd.bam \
+ko_tcm1.36.q30.sorted2.rmd.bam \
+ko_tcm2.36.q30.sorted2.rmd.bam \
+ko_tcm3.36.q30.sorted2.rmd.bam
+
+### macs2 callpeak
+### output: macs2 callpeak output with name "union"
+### output path : macs2
+macs2 callpeak -t $path/all.merged.bam -f BAMPE -g mm -n union -B -q 0.05 --SPMR --outdir $path/macs2
+

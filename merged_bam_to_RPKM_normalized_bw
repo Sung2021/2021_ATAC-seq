@@ -1,0 +1,23 @@
+#!/bin/bash
+
+path=~/Desktop/Sung_work/sam
+
+### merge bams from one condition (combining replicates in one condition)
+### naive, ko_tem : two replicates
+for input in naive ko_tem ; do samtools merge -f $path/${input}.bam \
+$path/${input}1.36.q30.sorted2.rmd.bam \
+$path/${input}2.36.q30.sorted2.rmd.bam ; done
+
+### wt_tem, wt_tcm, ko_tcm : three replicates
+for input in wt_tem wt_tcm ko_tcm ; do samtools merge -f $path/${input}.bam \
+$path/${input}1.36.q30.sorted2.rmd.bam \
+$path/${input}2.36.q30.sorted2.rmd.bam \
+$path/${input}3.36.q30.sorted2.rmd.bam ; done
+
+
+### sort, index first
+### bigwig files : using bamCoverage
+### normalizeusing RPKM
+for input in naive wt_tem wt_tcm ko_tem ko_tcm; do samtools sort -@ 10 $path/${input}.bam -o $path/${input}.sorted.bam 
+samtools index -@ 10 $path/${input}.sorted.bam 
+bamCoverage -b $path/${input}.sorted.bam -o ${input}.bw --normalizeUsing RPKM ; done

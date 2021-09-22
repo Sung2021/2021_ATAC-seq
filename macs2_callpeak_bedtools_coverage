@@ -1,20 +1,43 @@
 #!/bin/bash
 
-
-#input=naive
 path=~/Desktop/Sung_work/sam
 
+##### this step can be done after macs2 peak calling 
+##### this step use pileup files from macs2 peak calling
+##### only for visualization in IGV 
+
+### 1. macs2 callpeak
+### 5 bam files (condition replicates were combined into one bam file)
+for input in naive wt_tem wt_tcm ko_tem ko_tcm; do macs2 callpeak \
+-t $path/${input}.sorted.bam -f BAMPE -g mm -n ${input} -B -q 1e-10 --SPMR --outdir $path/macs2 ; done
+
+### 2. sort the pileup files (from macs2 output) by chromosomal order
+for input in naive wt_tem wt_tcm ko_tem ko_tcm; do sort -k1,1 -k2,2n \
+$path/${input}_treat_pileup.bdg > $path/${input}.sorted.bdg ; done
+
+### 3. convert the sorted pileup files to bw for the IGV use
+### bedGraphToBigWig function
+### sorted bdg to bw
+for input in naive wt_tem wt_tcm ko_tem ko_tcm; do bedGraphToBigWig $path/${input}.sorted.bdg \
+~/Desktop/software/mm10.chrom.sizes.txt $path/${input}.pileup.bw ; done
+
+
+
+
+
+
+
+#############################################################################
+############ old codes ######################################################
 for input in wt_tcm1 wt_tcm2 wt_tcm3 ko_tem1 ko_tem2 ko_tcm1 ko_tcm2 ko_tcm3; \
 do macs2 callpeak -t $path/${input}${j}.36.q30.sorted2.rmd.bam -f BAMPE -g mm -n ${input} -B -q 0.05 --SPMR --outdir $path/macs2; done
 
 for input in naive1 naive2 wt_tem1 wt_tem2 wt_tem3 wt_tcm1 wt_tcm2 wt_tcm3 ko_tem1 ko_tem2 ko_tcm1 ko_tcm2 ko_tcm3 ; \
 do echo ${input}; awk '{if($8 > 1.30) print $0}' $path/macs2/${input}_peaks.narrowPeak | wc -l ; done
 
-
 ##### generate merged.bed as the input for bedtools coverage
 #cd $path/macs2/
 #cat *Peak | sort -k1,1 -k2,2n | bedtools merge -i stdin | awk 'BEGIN{OFS="\t"} $0=$0"\t"NR' > all.merged.bed
-
 
 ##### generate each paired end bed files from bam files 
 #mkdir $path/bed

@@ -13,12 +13,12 @@ for input in naive wt_tem wt_tcm ko_tem ko_tcm; do macs2 callpeak \
 
 ### 2. sort the pileup files (from macs2 output) by chromosomal order
 for input in naive wt_tem wt_tcm ko_tem ko_tcm; do sort -k1,1 -k2,2n \
-$path/${input}_treat_pileup.bdg > $path/${input}.sorted.bdg ; done
+$path/macs2/${input}_treat_pileup.bdg > $path/macs2/${input}.sorted.bdg ; done
 
 ### 3. convert the sorted pileup files to bw for the IGV use
 ### bedGraphToBigWig function
 ### sorted bdg to bw
-for input in naive wt_tem wt_tcm ko_tem ko_tcm; do bedGraphToBigWig $path/${input}.sorted.bdg \
+for input in naive wt_tem wt_tcm ko_tem ko_tcm; do bedGraphToBigWig $path/macs2/${input}.sorted.bdg \
 ~/Desktop/software/mm10.chrom.sizes.txt $path/${input}.pileup.bw ; done
 
 

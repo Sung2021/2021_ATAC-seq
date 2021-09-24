@@ -43,15 +43,11 @@ ggplot(res, aes(log2FoldChange, -log10(padj))) +
   geom_vline(xintercept = c(-1,1),col='dark green', linetype=1) +
   geom_hline(yintercept = -log10(0.05), col='dark green', linetype=1)
   
-
-res[1:3,]
+### when slicing, 'NA' are generated and are included in the dataset
+### to avoid 'NA's, using dplyr piping 
 dim(res) ## total peaks
-dim(res[res$log2FoldChange >= log2(2),]) ### 
-dim(res[res$log2FoldChange >= log2(2) & res$padj < 0.05,]) ###
-dim(res[res$log2FoldChange <= -log2(2),]) ###
-dim(res[res$log2FoldChange <= -log2(2) & res$padj < 0.05,]) ###
-res.inc <- res[res$log2FoldChange >= log2(2) & res$padj < 0.05,]
-res.des <- res[res$log2FoldChange <= -log2(2) & res$padj < 0.05,]
+res.inc <- res %>% filter(log2FoldChange >= log2(2)) %>% filter(padj < 0.05)
+res.des <- res %>% filter(log2FoldChange <= -log2(2)) %>% filter(padj < 0.05)
 res.sig <- rbind(res.inc, res.des)
 dim(res.sig)
 dim(res.inc)

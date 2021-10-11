@@ -83,3 +83,33 @@ peakAnno.peak_reads@peakNum
 
 anno.db <- data.frame(peakAnno.peak_reads@anno)
 anno.db[1:3,]
+saveRDS(anno.db, 'rds/2021.10.11.Tcm_wt_ko.DEP.anno.db.rds')
+
+##### anno.db statistics ######
+anno.db$feature <- 'NA'
+anno.db[grep('Promoter', anno.db$annotation),'feature'] <- 'Promoter'
+anno.db[grep('Intron', anno.db$annotation),'feature'] <- 'Intron'
+anno.db[grep('Exon', anno.db$annotation),'feature'] <- 'Exon'
+anno.db[grep('3\' UTR', anno.db$annotation),'feature'] <- '3\' UTR'
+anno.db[grep('5\' UTR', anno.db$annotation),'feature'] <- '5\' UTR'
+anno.db[grep('Downstream', anno.db$annotation),'feature'] <- 'Downstream'
+anno.db[grep('Distal Intergenic', anno.db$annotation),'feature'] <- 'Distal Intergenic'
+anno.db$feature <- factor(anno.db$feature)
+## bar plot-feature
+ggplot(anno.db, aes(feature, fill=feature)) + geom_bar() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+df <- data.frame(table(anno.db$feature))
+df$perc <- df$Freq/sum(df$Freq)*100
+## pie plot
+ggplot(df, aes(x="", y=perc, fill=Var1)) + geom_col() + coord_polar(theta = 'y') +
+  geom_text(aes(label = round(perc, digits = 1)),
+            position = position_stack(vjust = 0.5))
+## bar plot-chromosome
+ggplot(anno.db, aes(geneChr, fill=geneChr)) + geom_bar() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+table(anno.db$geneChr)
+hist((anno.db$distanceToTSS), breaks = 500)
+
+ggplot(anno.db, aes(feature, distanceToTSS)) + geom_jitter(size=0.5, alpha=0.5) + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))

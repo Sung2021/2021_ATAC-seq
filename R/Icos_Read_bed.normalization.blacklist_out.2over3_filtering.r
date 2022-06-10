@@ -115,7 +115,21 @@ norm.peak %>%
 norm.peak %>% dim()
 
 
-### analyze data
-norm.peak <- read.csv('ATAC_seq/Icos.2022.06/Icos.ATAC_seq.all.read.raw.only.bl.filtered.colmean.norm.22.06.09.csv',
-                      row.names = 1)
-norm.peak[1:3,]
+## expression 2 over 3 samples filtering
+tmp <- !(read[,4:9] == 0) ## True when the expression is not equal to 0
+tmp2 <- cbind(rowSums(tmp[,1:3]), 
+              rowSums(tmp[,4:6])) %>% data.frame()
+tmp2[1:2,]
+tmp2$sum <- 'NA'
+peaks <- tmp2 %>% filter(X1 >=2 | X2 >=2) %>% rownames()
+tmp2[peaks, ]$sum <- 'good'
+tmp2$sum %>% table()
+
+## update the data
+read <- read[peaks,]
+norm.peak <- norm.peak[peaks,]
+
+read %>% write.csv('ATAC_seq/Icos.2022.06/Icos.ATAC_seq.all.read.raw.only.bl.filtered.2over3_filtered.22.06.10.csv')
+norm.peak %>% 
+  write.csv('ATAC_seq/Icos.2022.06/Icos.ATAC_seq.all.read.raw.only.bl.filtered.colmean.norm.2over3_filtered.22.06.10.csv')
+

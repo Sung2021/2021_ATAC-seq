@@ -5,6 +5,15 @@ library(reshape)
 setwd('~/Desktop/HMH/rds')
 theme_set(theme_bw())
 
+## zscore function 
+zscore <- function(input.data = input.data){
+  input.data.rowsums <- rowSums(input.data)
+  input.data.mean <- rowMeans(input.data)
+  input.data.sd <- matrixStats::rowSds(as.matrix(input.data))
+  names(input.data.sd) <- rownames(input.data)
+  zscore <- (input.data-input.data.mean)/input.data.sd
+  return(zscore)
+}
 
 sig.peak.norm <- read.csv('ATAC_seq/atac_seq.readvalue.and.normalized_21.11.29/atac_seq.21.11.29.sig.peaks.norm.csv',
                           row.names = 1)

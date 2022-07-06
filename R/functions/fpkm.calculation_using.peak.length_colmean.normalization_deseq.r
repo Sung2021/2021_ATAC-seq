@@ -1,7 +1,9 @@
+## generate DESeq2 object (dds) from count.mtx (raw count)
+## generate GRange info from peak length information
+## replace rowRanges(dds) with GRange object from peak length information
+## use fpkm(dds) function in DESeq to calculate fpkm
+## I couldn't find the fpkm formula to use it manually
 
-
-### This is a chunk of codes for 
-### ATAC-seq analysis
 #####################################
 setwd('~/Desktop/HMH/rds')
 
@@ -10,8 +12,6 @@ library(dplyr)
 library(DESeq2)
 library(GenomicRanges)
 library(rtracklayer)
-library(ChIPseeker)
-library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 
 ####################################################################
 ## 2022.07.05

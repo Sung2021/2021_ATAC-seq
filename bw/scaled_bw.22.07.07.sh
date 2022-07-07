@@ -10,6 +10,8 @@ macs2 callpeak -t final.bam \
                -B \
                -q 0.05 
                
+macs2 callpeak -t $path/${i} -c -f BAMPE -g mm -n merged -B -q 0.05 --name ${i} --SPMR --outdir $path/${i}_macs2 
+
 ## among outputs, use treat_pileup.bdg file be used
 ## sort by chromosomal order (optional?)
 sort -k1,1 -k2,2n $path/${input}${i}_treat_pileup.bdg > $path/${input}${i}.sorted.bdg

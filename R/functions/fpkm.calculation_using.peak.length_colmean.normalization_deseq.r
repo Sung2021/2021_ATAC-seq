@@ -21,7 +21,7 @@ df <- read.csv('ATAC_seq/Icos.2022.06/Icos.ATAC_seq.all.read.raw.only.bl.filtere
 df[1:3,]
 df %>% dim()
 
-
+## fpkm calculation 
 count.mtx <- df[,c(4:8)]
 se <- SummarizedExperiment(as.matrix(count.mtx), 
                            colData=DataFrame(sample=1:ncol(count.mtx)))
@@ -32,28 +32,22 @@ fpkm %>% dim() ## 52241
 fpkm[1:3,]
 colMeans(fpkm)
 
-## colmean normalization
+## fpkm-colmean normalization
 input.data <- fpkm
-input.data[1:3,]
 col.means <- input.data %>% colMeans()
-col.means 
-tmp <- data.frame(matrix(nrow=nrow(input.data), ncol = ncol(input.data)))
+tmp <- data.frame(matrix(nrow=nrow(input.data), 
+                         ncol = ncol(input.data)))
 colnames(tmp) <- colnames(input.data)
 rownames(tmp) <- rownames(input.data)
-tmp[1:3,]
 for(i in 1:nrow(tmp)){
   tmp[i,] <- col.means
 }
-tmp[1:10,]
 norm.peak <- cbind(df[,c(1:3)],(input.data/tmp))
-norm.peak[1:3,]
 norm.peak %>% dim()
+fpkm.colmean.norm <- norm.peak
+fpkm.colmean.norm %>% write.csv('ATAC_seq/Icos.2022.06/Icos.ATAC_seq.fpkm.colmean.norm.22.07.08.csv')
 
-fpkm.colmean.norm.peak <- norm.peak
-
-fpkm.colmean.norm.peak %>% 
-  write.csv('ATAC_seq/Icos.2022.06/fpkm.colmean.norm.22.07.06/Icos.ATAC.fpkm.colmean.norm.peak.22.07.06.csv')
-
+##########################################################################
 
 #prcomp(t(input.data), scale. = T)$x
 norm.mtx <- fpkm.colmean.norm.peak[,c(4:8)]

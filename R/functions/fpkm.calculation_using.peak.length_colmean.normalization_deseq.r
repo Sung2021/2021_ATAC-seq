@@ -77,8 +77,9 @@ ggplot(pca, aes(PC1,PC2,label=rownames(pca),
 
 #####################################################################
 
+## DEPeak 
 ## information sheet
-count.input <- df[,c(4:ncol(df))]
+count.input <- df[,c(4:ncol(df))] ## raw integer input
 info <- data.frame(matrix(nrow = ncol(count.input), ncol = 2))
 colnames(info) <- c('sample', 'cond')
 info$sample <- colnames(count.input)
@@ -94,12 +95,33 @@ dim(res)
 res <- data.frame(res)
 res[1:3,]
 
-res %>% ggplot(aes(log2FoldChange, -log10(padj))) + geom_point(alpha=0.5)+
+res %>% ggplot(aes(log2FoldChange, -log10(padj))) + geom_point(size=1, alpha=0.5) +
   geom_vline(xintercept = c(-log2(2), log2(2)), color='red') +
-  geom_hline(yintercept = -log10(0.05), color='blue') + theme_bw()
+  geom_hline(yintercept = -log10(0.05), color='blue') + theme_classic()
+
+fc <- 2
+pval <- 0.05
+qval <- 0.05
+res$color <- 'NA'
+red <- res %>% filter(pvalue < pval) %>%  filter(log2FoldChange > log2(fc)) %>% rownames()
+blue <- res %>% filter(pvalue < pval) %>%  filter(log2FoldChange < -log2(fc)) %>% rownames()
+res[red,]$color <- 'red'
+res[blue,]$color <- 'blue'
+res$size <- 'small'
+res[(res %>% filter(color %in% c('red','blue')) %>% rownames()),]$size <- 'normal'
+res %>% ggplot(aes(log2FoldChange, -log10(pvalue),
+                   color=color,size=size)) + geom_point(alpha=0.5) +
+  geom_vline(xintercept = c(-log2(fc), log2(fc)), color='red') +
+  geom_hline(yintercept = -log10(pval), color='blue') + 
+  scale_color_manual(values = c('blue','grey','red')) +
+  scale_size_manual(values = c(1.5,0.5)) +
+  theme_classic() +  theme(legend.position = 'none')
+
 
 fc <- 1.5
 res %>% filter(padj < 0.05) %>%  filter(log2FoldChange > log2(fc)) %>% dim()
 res %>% filter(padj < 0.05) %>%  filter(log2FoldChange < -log2(fc)) %>% dim()
 res %>% filter(pvalue < 0.05) %>%  filter(log2FoldChange > log2(fc)) %>% dim()
 res %>% filter(pvalue < 0.05) %>%  filter(log2FoldChange < -log2(fc)) %>% dim()
+
+

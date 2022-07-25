@@ -16,7 +16,7 @@ macs2 callpeak -t # input bam file
 path=.
 mkdir $path/macs2.out
 for i in *.bam;do mkdir $path/macs2.out/${i}
-macs2 callpeak -t $path/${i} -f BAMPE -g mm -n ${i} -B -q 0.05 --outdir $path/macs2.out/${i} ;done
+macs2 callpeak -t $path/${i} -c -f BAMPE -g mm -n ${i} -B -q 0.05 --outdir $path/macs2.out/${i} ;done
 
 #!/bin/bash
 path=.
